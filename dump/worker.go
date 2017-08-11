@@ -146,6 +146,7 @@ func convertContent(Map map[string]interface{}, fields []TypeField) Content {
 			mainContent = Map[el.ID].(string)
 		} else if el.ID == "slug" {
 			slug = Map[el.ID].(string)
+			fieldMap[el.ID] = slug
 		} else if el.Type == "Array" {
 			items := Map[el.ID].([]interface{})
 
