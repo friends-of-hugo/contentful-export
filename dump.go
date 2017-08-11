@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"io/ioutil"
@@ -56,14 +57,25 @@ func (s Content) String() string {
 }
 
 type Sys struct {
-	Type      string
-	LinkType  string
-	ID        string
-	Space     map[string]interface{}
-	CreatedAt string
-	Locale    string
-	Revision  int
-	UpdatedAt string
+	Type        string
+	LinkType    string
+	ID          string
+	Space       map[string]interface{}
+	CreatedAt   string
+	Locale      string
+	Revision    int
+	UpdatedAt   string
+	ContentType ContentType
+}
+
+type ContentType struct {
+	Sys TypeDetails
+}
+
+type TypeDetails struct {
+	Type     string
+	LinkType string
+	ID       string
 }
 
 func main() {
@@ -75,9 +87,18 @@ func main() {
 	}
 
 	for _, item := range foo2.Items {
+		dir := "./content/" + item.Sys.ContentType.Sys.ID
+		var fileMode os.FileMode
+		fileMode = 0733
+		err := os.MkdirAll(dir, fileMode)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println(item.Sys.ContentType.Sys.ID)
 		output := convertContent(item.Fields)
 
-		err := ioutil.WriteFile("./content/"+output.Slug+".md", []byte(output.String()), 0644)
+		err = ioutil.WriteFile(dir+output.Slug+".md", []byte(output.String()), fileMode)
 		if err != nil {
 			log.Fatal(err)
 		}
