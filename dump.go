@@ -35,23 +35,13 @@ type Item struct {
 	Fields map[string]interface{}
 }
 
-type SmallgroupParams struct {
-	Title        string
-	Slug         string
-	Description  string
-	LocationText string
-	Lat          float64
-	Long         float64
-	Weekday      string
-	Time         string
-}
-
-type Smallgroup struct {
-	Params      SmallgroupParams
+type Content struct {
+	Params      map[string]interface{}
 	MainContent string
+	Slug        string
 }
 
-func (s Smallgroup) String() string {
+func (s Content) String() string {
 	result := "+++\n"
 	output, err := toml.Marshal(s.Params)
 	if err != nil {
@@ -85,9 +75,9 @@ func main() {
 	}
 
 	for _, item := range foo2.Items {
-		output := convertSmallgroup(item.Fields)
+		output := convertContent(item.Fields)
 
-		err := ioutil.WriteFile("./content/"+output.Params.Slug+".md", []byte(output.String()), 0644)
+		err := ioutil.WriteFile("./content/"+output.Slug+".md", []byte(output.String()), 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -95,18 +85,19 @@ func main() {
 
 }
 
-func convertSmallgroup(Map map[string]interface{}) Smallgroup {
-	return Smallgroup{
-		SmallgroupParams{
-			Map["title"].(string),
-			Map["slug"].(string),
-			Map["description"].(string),
-			Map["locationText"].(string),
-			Map["locationCoordinates"].(map[string]interface{})["lat"].(float64),
-			Map["locationCoordinates"].(map[string]interface{})["lon"].(float64),
-			Map["weekday"].(string),
-			Map["time"].(string),
+func convertContent(Map map[string]interface{}) Content {
+	return Content{
+		map[string]interface{}{
+			"title":        Map["title"].(string),
+			"slug":         Map["slug"].(string),
+			"description":  Map["description"].(string),
+			"locationText": Map["locationText"].(string),
+			"lat":          Map["locationCoordinates"].(map[string]interface{})["lat"].(float64),
+			"long":         Map["locationCoordinates"].(map[string]interface{})["lon"].(float64),
+			"weekday":      Map["weekday"].(string),
+			"time":         Map["time"].(string),
 		},
 		Map["mainContent"].(string),
+		Map["slug"].(string),
 	}
 }
