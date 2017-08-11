@@ -1,9 +1,10 @@
 package main
 
-import (
-	"./dump"
-)
+import "./dump"
 
 func main() {
-	dump.Work()
+
+	types := dump.ReadTypes()
+	dump.Work(types)
+
 }

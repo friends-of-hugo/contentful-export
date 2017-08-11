@@ -78,10 +78,10 @@ type TypeDetails struct {
 	ID       string
 }
 
-func Work() {
+func Work(types Type) {
 
 	var result Result
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&content_type=smallgroup", &result)
+	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200", &result)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,8 +95,9 @@ func Work() {
 			log.Fatal(err)
 		}
 
-		log.Println(item.Sys.ContentType.Sys.ID)
-		output := convertContent(item.Fields)
+		itemType := types.GetType(item.Sys.ContentType.Sys.ID)
+
+		output := convertContent(item.Fields, itemType.Fields)
 
 		err = ioutil.WriteFile(dir+output.Slug+".md", []byte(output.String()), fileMode)
 		if err != nil {
@@ -106,19 +107,25 @@ func Work() {
 
 }
 
-func convertContent(Map map[string]interface{}) Content {
+func convertContent(Map map[string]interface{}, fields []TypeField) Content {
+
+	fieldMap := map[string]interface{}{}
+	mainContent := ""
+	slug := "index"
+
+	for _, el := range fields {
+		if el.ID == "mainContent" {
+			mainContent = Map[el.ID].(string)
+		} else if el.ID == "slug" {
+			slug = Map[el.ID].(string)
+		} else {
+			fieldMap[el.ID] = Map[el.ID]
+		}
+	}
+
 	return Content{
-		map[string]interface{}{
-			"title":        Map["title"].(string),
-			"slug":         Map["slug"].(string),
-			"description":  Map["description"].(string),
-			"locationText": Map["locationText"].(string),
-			"lat":          Map["locationCoordinates"].(map[string]interface{})["lat"].(float64),
-			"long":         Map["locationCoordinates"].(map[string]interface{})["lon"].(float64),
-			"weekday":      Map["weekday"].(string),
-			"time":         Map["time"].(string),
-		},
-		Map["mainContent"].(string),
-		Map["slug"].(string),
+		fieldMap,
+		mainContent,
+		slug,
 	}
 }
