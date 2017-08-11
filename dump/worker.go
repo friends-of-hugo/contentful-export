@@ -87,7 +87,7 @@ func Work() {
 	}
 
 	for _, item := range foo2.Items {
-		dir := "./content/" + item.Sys.ContentType.Sys.ID
+		dir := "./content/" + item.Sys.ContentType.Sys.ID + "/"
 		var fileMode os.FileMode
 		fileMode = 0733
 		err := os.MkdirAll(dir, fileMode)
