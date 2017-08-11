@@ -81,7 +81,7 @@ type TypeDetails struct {
 func main() {
 
 	var foo2 Foo
-	err := getJson("https://cdn.contentful.com/spaces/fp8h0eoshqd0/entries?access_token=2fd06acb06dc3314b28cbd3428be4a3fa9ba2163530f71a09e49ae4c11462006&limit=200&content_type=smallgroup", &foo2)
+	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&content_type=smallgroup", &foo2)
 	if err != nil {
 		log.Fatal(err)
 	}
