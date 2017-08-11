@@ -36,6 +36,28 @@ type Item struct {
 	Fields map[string]interface{}
 }
 
+func (item *Item) Dir() string {
+	dir := "./content/"
+	contentType := item.ContentType()
+	if contentType != "homepage" {
+		dir += contentType + "/"
+	}
+	return dir
+}
+
+func (item *Item) Filename() string {
+	dir := item.Dir()
+	if dir == "./content/" {
+		return dir + "_index.md"
+	}
+
+	return dir + item.Sys.ID + ".md"
+}
+
+func (item *Item) ContentType() string {
+	return item.Sys.ContentType.Sys.ID
+}
+
 type Content struct {
 	Params      map[string]interface{}
 	MainContent string
@@ -87,12 +109,9 @@ func Work(types Type) {
 	}
 
 	for _, item := range result.Items {
-		contentType := item.Sys.ContentType.Sys.ID
-		dir := "./content/"
+		contentType := item.ContentType()
 
-		if contentType != "homepage" {
-			dir += contentType + "/"
-		}
+		dir := item.Dir()
 
 		var fileMode os.FileMode
 		fileMode = 0733
@@ -105,7 +124,8 @@ func Work(types Type) {
 
 		output := convertContent(item.Fields, itemType.Fields)
 
-		fileName := dir + output.Slug + ".md"
+		//fileName := dir + output.Slug + ".md"
+		fileName := item.Filename()
 
 		err = ioutil.WriteFile(fileName, []byte(output.String()), fileMode)
 		if err != nil {
@@ -126,6 +146,18 @@ func convertContent(Map map[string]interface{}, fields []TypeField) Content {
 			mainContent = Map[el.ID].(string)
 		} else if el.ID == "slug" {
 			slug = Map[el.ID].(string)
+		} else if el.Type == "Array" {
+			items := Map[el.ID].([]interface{})
+
+			var array []string
+			array = make([]string, len(items))
+
+			for i, el := range items {
+				sys := el.(map[string]interface{})["sys"].(map[string]interface{})
+				array[i] = sys["id"].(string) + ".md"
+			}
+			fieldMap[el.ID] = array
+
 		} else {
 			fieldMap[el.ID] = Map[el.ID]
 		}
