@@ -24,7 +24,7 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-type Foo struct {
+type Result struct {
 	Total int
 	Skip  int
 	Limit int
@@ -80,13 +80,13 @@ type TypeDetails struct {
 
 func Work() {
 
-	var foo2 Foo
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&content_type=smallgroup", &foo2)
+	var result Result
+	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&content_type=smallgroup", &result)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, item := range foo2.Items {
+	for _, item := range result.Items {
 		dir := "./content/" + item.Sys.ContentType.Sys.ID + "/"
 		var fileMode os.FileMode
 		fileMode = 0733
