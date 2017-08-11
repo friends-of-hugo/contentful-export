@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -17,15 +16,10 @@ var myClient = &http.Client{Timeout: 10 * time.Second}
 func getJson(url string, target interface{}) error {
 	r, err := myClient.Get(url)
 	if err != nil {
-		println("HTTP err")
-		return err
+		log.Fatal(err)
 	}
-	println("HTTP OK ")
 	defer r.Body.Close()
 
-	//body, err := ioutil.ReadAll(r.Body)
-
-	//return json.Unmarshal(body, target)
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
@@ -50,7 +44,6 @@ type SmallgroupParams struct {
 	Long         float64
 	Weekday      string
 	Time         string
-	//MainContent  string
 }
 
 type Smallgroup struct {
@@ -69,11 +62,6 @@ func (s Smallgroup) String() string {
 	result += "+++\n"
 	result += s.MainContent
 
-	err = ioutil.WriteFile("./smallgroups/"+s.Params.Slug+".md", []byte(result), 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return result
 }
 
@@ -90,26 +78,19 @@ type Sys struct {
 
 func main() {
 
-	//var foo2 map[string]interface{}
 	var foo2 Foo
 	err := getJson("https://cdn.contentful.com/spaces/fp8h0eoshqd0/entries?access_token=2fd06acb06dc3314b28cbd3428be4a3fa9ba2163530f71a09e49ae4c11462006&limit=200&content_type=smallgroup", &foo2)
 	if err != nil {
-		println("ERR")
 		log.Fatal(err)
 	}
-	println("OK")
-
-	//fmt.Printf("Results: %v\n", foo2)
 
 	for _, item := range foo2.Items {
-		//output, err := toml.Marshal(convertSmallgroup(item.Fields))
-		//Map := item.Fields
-		//output, err := toml.Marshal(Map["title"])
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 		output := convertSmallgroup(item.Fields)
-		fmt.Printf("****\n\n%s\n\n****", output)
+
+		err := ioutil.WriteFile("./content/"+output.Params.Slug+".md", []byte(output.String()), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 }
