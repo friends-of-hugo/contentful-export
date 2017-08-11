@@ -87,7 +87,13 @@ func Work(types Type) {
 	}
 
 	for _, item := range result.Items {
-		dir := "./content/" + item.Sys.ContentType.Sys.ID + "/"
+		contentType := item.Sys.ContentType.Sys.ID
+		dir := "./content/"
+
+		if contentType != "homepage" {
+			dir += contentType + "/"
+		}
+
 		var fileMode os.FileMode
 		fileMode = 0733
 		err := os.MkdirAll(dir, fileMode)
@@ -95,11 +101,13 @@ func Work(types Type) {
 			log.Fatal(err)
 		}
 
-		itemType := types.GetType(item.Sys.ContentType.Sys.ID)
+		itemType := types.GetType(contentType)
 
 		output := convertContent(item.Fields, itemType.Fields)
 
-		err = ioutil.WriteFile(dir+output.Slug+".md", []byte(output.String()), fileMode)
+		fileName := dir + output.Slug + ".md"
+
+		err = ioutil.WriteFile(fileName, []byte(output.String()), fileMode)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -111,7 +119,7 @@ func convertContent(Map map[string]interface{}, fields []TypeField) Content {
 
 	fieldMap := map[string]interface{}{}
 	mainContent := ""
-	slug := "index"
+	slug := "_index"
 
 	for _, el := range fields {
 		if el.ID == "mainContent" {
