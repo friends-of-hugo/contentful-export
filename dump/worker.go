@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"io/ioutil"
@@ -101,9 +102,12 @@ type TypeDetails struct {
 }
 
 func Work(types Type) {
+	WorkSkip(types, 0)
+}
+func WorkSkip(types Type, skip int) {
 
 	var result Result
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200", &result)
+	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&skip="+strconv.Itoa(skip), &result)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,6 +137,10 @@ func Work(types Type) {
 		}
 	}
 
+	nextPage := result.Skip + result.Limit
+	if nextPage < result.Total {
+		WorkSkip(types, nextPage)
+	}
 }
 
 func convertContent(Map map[string]interface{}, fields []TypeField) Content {
