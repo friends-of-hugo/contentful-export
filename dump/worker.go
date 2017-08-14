@@ -144,37 +144,42 @@ func WorkSkip(types Type, skip int) {
 }
 
 func convertContent(Map map[string]interface{}, fields []TypeField) Content {
-
 	fieldMap := map[string]interface{}{}
-	mainContent := ""
-	slug := "_index"
 
-	for _, el := range fields {
-		if el.ID == "mainContent" {
-			mainContent = Map[el.ID].(string)
-		} else if el.ID == "slug" {
-			slug = Map[el.ID].(string)
-			fieldMap[el.ID] = slug
-		} else if el.Type == "Array" {
-			items := Map[el.ID].([]interface{})
-
-			var array []string
-			array = make([]string, len(items))
-
-			for i, el := range items {
-				sys := el.(map[string]interface{})["sys"].(map[string]interface{})
-				array[i] = sys["id"].(string) + ".md"
-			}
-			fieldMap[el.ID] = array
-
-		} else {
-			fieldMap[el.ID] = Map[el.ID]
-		}
+	for _, field := range fields {
+		fieldMap[field.ID] = translateField(Map[field.ID], field)
 	}
+	mainContent := removeItem(fieldMap, "mainContent").(string)
+	slug, _ := fieldMap["slug"].(string)
 
 	return Content{
 		fieldMap,
 		mainContent,
 		slug,
 	}
+}
+
+func removeItem(Map map[string]interface{}, toDelete string) interface{} {
+	value := Map[toDelete]
+	if value == nil {
+		return ""
+	}
+	delete(Map, toDelete)
+	return value
+}
+
+func translateField(value interface{}, field TypeField) interface{} {
+	if field.Type == "Array" {
+		items := value.([]interface{})
+
+		var array []string
+		array = make([]string, len(items))
+
+		for i, el := range items {
+			sys := el.(map[string]interface{})["sys"].(map[string]interface{})
+			array[i] = sys["id"].(string) + ".md"
+		}
+		return array
+	}
+	return value
 }
