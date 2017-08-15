@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 
 	"github.com/naoina/toml"
+	"strings"
 )
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
@@ -113,28 +114,7 @@ func WorkSkip(types Type, skip int) {
 	}
 
 	for _, item := range result.Items {
-		contentType := item.ContentType()
-
-		dir := item.Dir()
-
-		var fileMode os.FileMode
-		fileMode = 0733
-		err := os.MkdirAll(dir, fileMode)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		itemType := types.GetType(contentType)
-
-		output := convertContent(item.Fields, itemType.Fields)
-
-		//fileName := dir + output.Slug + ".md"
-		fileName := item.Filename()
-
-		err = ioutil.WriteFile(fileName, []byte(output.String()), fileMode)
-		if err != nil {
-			log.Fatal(err)
-		}
+		processItem(item, types)
 	}
 
 	nextPage := result.Skip + result.Limit
@@ -142,6 +122,33 @@ func WorkSkip(types Type, skip int) {
 		WorkSkip(types, nextPage)
 	}
 }
+func processItem(item Item, types Type) {
+	itemType := types.GetType(item.ContentType())
+	output := convertContent(item.Fields, itemType.Fields).String()
+	fileName := item.Filename()
+	saveToFile(fileName, output)
+}
+
+func saveToFile(fileName string, output string) {
+	var fileMode os.FileMode
+	fileMode = 0733
+
+	err := os.MkdirAll(dirForFile(fileName), fileMode)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(fileName, []byte(output), fileMode)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func dirForFile(filename string) string {
+	index := strings.LastIndex(filename, "/")
+	return filename[0:index]
+}
+
 
 func convertContent(Map map[string]interface{}, fields []TypeField) Content {
 	fieldMap := map[string]interface{}{}
