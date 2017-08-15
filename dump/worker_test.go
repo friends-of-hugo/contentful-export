@@ -5,6 +5,58 @@ import (
 	"testing"
 )
 
+func TestConvertContent(t *testing.T) {
+	tests := []struct {
+		Map      map[string]interface{}
+		fields   []TypeField
+		expected Content
+	}{
+		{
+			map[string]interface{}{
+				"key": "value",
+			},
+			[]TypeField{
+				TypeField{"key", "", "String", false, false, false, false},
+			},
+			Content{
+				map[string]interface{}{
+					"key": "value",
+				},
+				"",
+				"",
+			},
+		},
+		{
+			map[string]interface{}{
+				"key":         "value",
+				"mainContent": "This is test main content\nand one more line",
+				"slug":        "my-test-slug",
+			},
+			[]TypeField{
+				TypeField{"key", "", "String", false, false, false, false},
+				TypeField{"mainContent", "", "String", false, false, false, false},
+				TypeField{"slug", "", "String", false, false, false, false},
+			},
+			Content{
+				map[string]interface{}{
+					"key":  "value",
+					"slug": "my-test-slug",
+				},
+				"This is test main content\nand one more line",
+				"my-test-slug",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		result := convertContent(test.Map, test.fields)
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Errorf("convertContent(%v, %v) incorrect, expected %v, got %v", test.Map, test.fields, test.expected, result)
+		}
+
+	}
+}
+
 func TestRemoveItem(t *testing.T) {
 	tests := []struct {
 		initial       map[string]interface{}
