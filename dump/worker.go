@@ -102,28 +102,43 @@ type TypeDetails struct {
 	ID       string
 }
 
-func Work(types Type) {
-	WorkSkip(types, 0)
+type Dumper struct {
+	Types Type
+	UrlBase string
+	SpaceID string
+	AccessToken string
+	//Config
+	// e.g. /content as basedir
+	// e.g. mainContent
+	// e.g. slug
+	// e.g. 200 items per page
+	// e.g. homepage -> _index.md
+	// etc
 }
-func WorkSkip(types Type, skip int) {
+
+func (d *Dumper) Work() {
+	d.WorkSkip(0)
+}
+func (d *Dumper) WorkSkip(skip int) {
 
 	var result Result
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&skip="+strconv.Itoa(skip), &result)
+	err := getJson(d.UrlBase + "/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip), &result)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, item := range result.Items {
-		processItem(item, types)
+		d.processItem(item)
 	}
 
 	nextPage := result.Skip + result.Limit
 	if nextPage < result.Total {
-		WorkSkip(types, nextPage)
+		d.WorkSkip(nextPage)
 	}
 }
-func processItem(item Item, types Type) {
-	itemType := types.GetType(item.ContentType())
+
+func (d *Dumper) processItem(item Item) {
+	itemType := d.Types.GetType(item.ContentType())
 	output := convertContent(item.Fields, itemType.Fields).String()
 	fileName := item.Filename()
 	saveToFile(fileName, output)
