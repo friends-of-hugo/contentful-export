@@ -2,11 +2,10 @@ package dump
 
 import (
 	"encoding/json"
+	"io"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"strings"
 
@@ -18,16 +17,18 @@ type Store interface {
 	WriteFile(filename string, data []byte, perm os.FileMode) error
 }
 
-var myClient = &http.Client{Timeout: 10 * time.Second}
+type Getter interface {
+	Get(url string) (result io.ReadCloser, err error)
+}
 
-func getJson(url string, target interface{}) error {
-	r, err := myClient.Get(url)
+func (d *Dumper) getJson(url string, target interface{}) error {
+	r, err := d.Getter.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer r.Body.Close()
+	defer r.Close()
 
-	return json.NewDecoder(r.Body).Decode(target)
+	return json.NewDecoder(r).Decode(target)
 }
 
 type Result struct {
@@ -107,12 +108,13 @@ type TypeDetails struct {
 }
 
 type Dumper struct {
-	Types       Type
 	UrlBase     string
 	SpaceID     string
 	AccessToken string
 	Locale      string
 	Store       Store
+	Getter      Getter
+	Types       Type
 	//Config
 	// e.g. /content as basedir
 	// e.g. mainContent
@@ -122,13 +124,24 @@ type Dumper struct {
 	// etc
 }
 
+func (d *Dumper) Typess() Type {
+	if d.Types.Total == 0 {
+		err := d.getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/content_types?access_token="+d.AccessToken+"&limit=200&locale"+d.Locale, &d.Types)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return d.Types
+}
+
 func (d *Dumper) Work() {
 	d.WorkSkip(0)
 }
 func (d *Dumper) WorkSkip(skip int) {
 
 	var result Result
-	err := getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip)+"&locale"+d.Locale, &result)
+	err := d.getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip)+"&locale"+d.Locale, &result)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -144,7 +157,8 @@ func (d *Dumper) WorkSkip(skip int) {
 }
 
 func (d *Dumper) processItem(item Item) {
-	itemType := d.Types.GetType(item.ContentType())
+	types := d.Typess()
+	itemType := types.GetType(item.ContentType())
 	output := convertContent(item.Fields, itemType.Fields).String()
 	fileName := item.Filename()
 	d.saveToFile(fileName, output)

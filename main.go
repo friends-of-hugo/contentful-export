@@ -10,12 +10,13 @@ import (
 func main() {
 
 	dumper := dump.Dumper{
-		dump.ReadTypes(),
 		"https://cdn.contentful.com",
 		os.Getenv("SPACE_ID"),
 		os.Getenv("CONTENTFUL_KEY"),
 		"en-US",
 		impl.FileStore{},
+		impl.HttpGetter{},
+		dump.Type{},
 	}
 
 	dumper.Work()
