@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"./dump"
+	"./impl"
 )
 
 func main() {
@@ -14,6 +15,7 @@ func main() {
 		os.Getenv("SPACE_ID"),
 		os.Getenv("CONTENTFUL_KEY"),
 		"en-US",
+		impl.FileStore{},
 	}
 
 	dumper.Work()

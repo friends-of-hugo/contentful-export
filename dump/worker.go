@@ -8,12 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"io/ioutil"
-
 	"strings"
 
 	"github.com/naoina/toml"
 )
+
+type Store interface {
+	MkdirAll(path string, perm os.FileMode) error
+	WriteFile(filename string, data []byte, perm os.FileMode) error
+}
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
@@ -109,6 +112,7 @@ type Dumper struct {
 	SpaceID     string
 	AccessToken string
 	Locale      string
+	Store       Store
 	//Config
 	// e.g. /content as basedir
 	// e.g. mainContent
@@ -143,19 +147,19 @@ func (d *Dumper) processItem(item Item) {
 	itemType := d.Types.GetType(item.ContentType())
 	output := convertContent(item.Fields, itemType.Fields).String()
 	fileName := item.Filename()
-	saveToFile(fileName, output)
+	d.saveToFile(fileName, output)
 }
 
-func saveToFile(fileName string, output string) {
+func (d *Dumper) saveToFile(fileName string, output string) {
 	var fileMode os.FileMode
 	fileMode = 0733
 
-	err := os.MkdirAll(dirForFile(fileName), fileMode)
+	err := d.Store.MkdirAll(dirForFile(fileName), fileMode)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = ioutil.WriteFile(fileName, []byte(output), fileMode)
+	err = d.Store.WriteFile(fileName, []byte(output), fileMode)
 	if err != nil {
 		log.Fatal(err)
 	}
