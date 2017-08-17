@@ -10,8 +10,9 @@ import (
 
 	"io/ioutil"
 
-	"github.com/naoina/toml"
 	"strings"
+
+	"github.com/naoina/toml"
 )
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
@@ -103,10 +104,11 @@ type TypeDetails struct {
 }
 
 type Dumper struct {
-	Types Type
-	UrlBase string
-	SpaceID string
+	Types       Type
+	UrlBase     string
+	SpaceID     string
 	AccessToken string
+	Locale      string
 	//Config
 	// e.g. /content as basedir
 	// e.g. mainContent
@@ -122,7 +124,7 @@ func (d *Dumper) Work() {
 func (d *Dumper) WorkSkip(skip int) {
 
 	var result Result
-	err := getJson(d.UrlBase + "/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip), &result)
+	err := getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip)+"&locale"+d.Locale, &result)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -163,7 +165,6 @@ func dirForFile(filename string) string {
 	index := strings.LastIndex(filename, "/")
 	return filename[0:index]
 }
-
 
 func convertContent(Map map[string]interface{}, fields []TypeField) Content {
 	fieldMap := map[string]interface{}{}
