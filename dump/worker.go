@@ -158,7 +158,10 @@ func (d *Dumper) WorkSkip(skip int) {
 
 func (d *Dumper) processItem(item Item) {
 	types := d.Typess()
-	itemType := types.GetType(item.ContentType())
+	itemType, err := types.GetType(item.ContentType())
+	if err != nil {
+		log.Fatal(err)
+	}
 	output := convertContent(item.Fields, itemType.Fields).String()
 	fileName := item.Filename()
 	d.saveToFile(fileName, output)

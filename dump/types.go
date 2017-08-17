@@ -1,5 +1,7 @@
 package dump
 
+import "errors"
+
 type Type struct {
 	Total int
 	Skip  int
@@ -7,14 +9,13 @@ type Type struct {
 	Items []TypeItem
 }
 
-func (t *Type) GetType(name string) TypeItem {
+func (t *Type) GetType(name string) (result TypeItem, err error) {
 	for _, el := range t.Items {
 		if el.Sys.ID == name {
-			return el
+			return el, nil
 		}
 	}
-	// TODO: Throw error - why can't I return nil?
-	return t.Items[0]
+	return TypeItem{}, errors.New("Type not found")
 }
 
 type TypeItem struct {
