@@ -2,27 +2,33 @@ package dump
 
 import (
 	"encoding/json"
+	"io"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
-	"time"
 
-	"io/ioutil"
+	"strings"
 
 	"github.com/naoina/toml"
 )
 
-var myClient = &http.Client{Timeout: 10 * time.Second}
+type Store interface {
+	MkdirAll(path string, perm os.FileMode) error
+	WriteFile(filename string, data []byte, perm os.FileMode) error
+}
 
-func getJson(url string, target interface{}) error {
-	r, err := myClient.Get(url)
+type Getter interface {
+	Get(url string) (result io.ReadCloser, err error)
+}
+
+func (d *Dumper) getJson(url string, target interface{}) error {
+	r, err := d.Getter.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer r.Body.Close()
+	defer r.Close()
 
-	return json.NewDecoder(r.Body).Decode(target)
+	return json.NewDecoder(r).Decode(target)
 }
 
 type Result struct {
@@ -101,80 +107,120 @@ type TypeDetails struct {
 	ID       string
 }
 
-func Work(types Type) {
-	WorkSkip(types, 0)
+type Dumper struct {
+	UrlBase     string
+	SpaceID     string
+	AccessToken string
+	Locale      string
+	Store       Store
+	Getter      Getter
+	Types       Type
+	//Config
+	// e.g. /content as basedir
+	// e.g. mainContent
+	// e.g. slug
+	// e.g. 200 items per page
+	// e.g. homepage -> _index.md
+	// etc
 }
-func WorkSkip(types Type, skip int) {
+
+func (d *Dumper) Typess() Type {
+	if d.Types.Total == 0 {
+		err := d.getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/content_types?access_token="+d.AccessToken+"&limit=200&locale"+d.Locale, &d.Types)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return d.Types
+}
+
+func (d *Dumper) Work() {
+	d.WorkSkip(0)
+}
+func (d *Dumper) WorkSkip(skip int) {
 
 	var result Result
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/entries?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200&skip="+strconv.Itoa(skip), &result)
+	err := d.getJson(d.UrlBase+"/spaces/"+d.SpaceID+"/entries?access_token="+d.AccessToken+"&limit=200&skip="+strconv.Itoa(skip)+"&locale"+d.Locale, &result)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, item := range result.Items {
-		contentType := item.ContentType()
-
-		dir := item.Dir()
-
-		var fileMode os.FileMode
-		fileMode = 0733
-		err := os.MkdirAll(dir, fileMode)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		itemType := types.GetType(contentType)
-
-		output := convertContent(item.Fields, itemType.Fields)
-
-		//fileName := dir + output.Slug + ".md"
-		fileName := item.Filename()
-
-		err = ioutil.WriteFile(fileName, []byte(output.String()), fileMode)
-		if err != nil {
-			log.Fatal(err)
-		}
+		d.processItem(item)
 	}
 
 	nextPage := result.Skip + result.Limit
 	if nextPage < result.Total {
-		WorkSkip(types, nextPage)
+		d.WorkSkip(nextPage)
 	}
 }
 
-func convertContent(Map map[string]interface{}, fields []TypeField) Content {
+func (d *Dumper) processItem(item Item) {
+	types := d.Typess()
+	itemType := types.GetType(item.ContentType())
+	output := convertContent(item.Fields, itemType.Fields).String()
+	fileName := item.Filename()
+	d.saveToFile(fileName, output)
+}
 
-	fieldMap := map[string]interface{}{}
-	mainContent := ""
-	slug := "_index"
+func (d *Dumper) saveToFile(fileName string, output string) {
+	var fileMode os.FileMode
+	fileMode = 0733
 
-	for _, el := range fields {
-		if el.ID == "mainContent" {
-			mainContent = Map[el.ID].(string)
-		} else if el.ID == "slug" {
-			slug = Map[el.ID].(string)
-			fieldMap[el.ID] = slug
-		} else if el.Type == "Array" {
-			items := Map[el.ID].([]interface{})
-
-			var array []string
-			array = make([]string, len(items))
-
-			for i, el := range items {
-				sys := el.(map[string]interface{})["sys"].(map[string]interface{})
-				array[i] = sys["id"].(string) + ".md"
-			}
-			fieldMap[el.ID] = array
-
-		} else {
-			fieldMap[el.ID] = Map[el.ID]
-		}
+	err := d.Store.MkdirAll(dirForFile(fileName), fileMode)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	err = d.Store.WriteFile(fileName, []byte(output), fileMode)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func dirForFile(filename string) string {
+	index := strings.LastIndex(filename, "/")
+	return filename[0:index]
+}
+
+func convertContent(Map map[string]interface{}, fields []TypeField) Content {
+	fieldMap := map[string]interface{}{}
+
+	for _, field := range fields {
+		fieldMap[field.ID] = translateField(Map[field.ID], field)
+	}
+	mainContent := removeItem(fieldMap, "mainContent").(string)
+	slug, _ := fieldMap["slug"].(string)
 
 	return Content{
 		fieldMap,
 		mainContent,
 		slug,
 	}
+}
+
+func removeItem(Map map[string]interface{}, toDelete string) interface{} {
+	value := Map[toDelete]
+	if value == nil {
+		return ""
+	}
+	delete(Map, toDelete)
+	return value
+}
+
+func translateField(value interface{}, field TypeField) interface{} {
+	if field.Type == "Array" {
+		items := value.([]interface{})
+
+		var array []string
+		array = make([]string, len(items))
+
+		for i, el := range items {
+			sys := el.(map[string]interface{})["sys"].(map[string]interface{})
+			array[i] = sys["id"].(string) + ".md"
+		}
+		return array
+	}
+	return value
 }

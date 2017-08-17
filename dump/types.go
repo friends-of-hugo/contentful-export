@@ -1,10 +1,5 @@
 package dump
 
-import (
-	"log"
-	"os"
-)
-
 type Type struct {
 	Total int
 	Skip  int
@@ -36,15 +31,4 @@ type TypeField struct {
 	Required  bool
 	Disabled  bool
 	Omitted   bool
-}
-
-func ReadTypes() Type {
-	log.Println("https://cdn.contentful.com/spaces/" + os.Getenv("SPACE_ID") + "/content_types?access_token=" + os.Getenv("CONTENTFUL_KEY") + "&limit=200")
-	var result Type
-	err := getJson("https://cdn.contentful.com/spaces/"+os.Getenv("SPACE_ID")+"/content_types?access_token="+os.Getenv("CONTENTFUL_KEY")+"&limit=200", &result)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return result
-
 }

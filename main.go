@@ -1,10 +1,24 @@
 package main
 
-import "./dump"
+import (
+	"os"
+
+	"./dump"
+	"./impl"
+)
 
 func main() {
 
-	types := dump.ReadTypes()
-	dump.Work(types)
+	dumper := dump.Dumper{
+		"https://cdn.contentful.com",
+		os.Getenv("SPACE_ID"),
+		os.Getenv("CONTENTFUL_KEY"),
+		"en-US",
+		impl.FileStore{},
+		impl.HttpGetter{},
+		dump.Type{},
+	}
+
+	dumper.Work()
 
 }
