@@ -1,10 +1,11 @@
-package impl
+package read
 
 import (
-	"io"
 	"net/http"
 	"time"
+	"io"
 )
+
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
 

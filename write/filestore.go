@@ -1,9 +1,10 @@
-package impl
+package write
 
 import (
-	"io/ioutil"
 	"os"
+	"io/ioutil"
 )
+
 
 type FileStore struct{}
 
