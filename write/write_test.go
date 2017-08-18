@@ -1,9 +1,6 @@
 package write
 
-import (
-	"reflect"
-	"testing"
-)
+import "testing"
 
 func TestDirForFile(t *testing.T) {
 	tests := []struct {
