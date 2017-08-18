@@ -3,20 +3,22 @@ package translate
 import (
 	"reflect"
 	"testing"
+
+	"../mapper"
 )
 
 func TestConvertContent(t *testing.T) {
 	tests := []struct {
 		Map      map[string]interface{}
-		fields   []TypeField
+		fields   []mapper.TypeField
 		expected Content
 	}{
 		{
 			map[string]interface{}{
 				"key": "value",
 			},
-			[]TypeField{
-				TypeField{"key", "", "String", false, false, false, false},
+			[]mapper.TypeField{
+				mapper.TypeField{"key", "", "String", false, false, false, false},
 			},
 			Content{
 				map[string]interface{}{
@@ -32,10 +34,10 @@ func TestConvertContent(t *testing.T) {
 				"mainContent": "This is test main content\nand one more line",
 				"slug":        "my-test-slug",
 			},
-			[]TypeField{
-				TypeField{"key", "", "String", false, false, false, false},
-				TypeField{"mainContent", "", "String", false, false, false, false},
-				TypeField{"slug", "", "String", false, false, false, false},
+			[]mapper.TypeField{
+				mapper.TypeField{"key", "", "String", false, false, false, false},
+				mapper.TypeField{"mainContent", "", "String", false, false, false, false},
+				mapper.TypeField{"slug", "", "String", false, false, false, false},
 			},
 			Content{
 				map[string]interface{}{
@@ -48,8 +50,10 @@ func TestConvertContent(t *testing.T) {
 		},
 	}
 
+	tc := TranslationConfig{}
+
 	for _, test := range tests {
-		result := convertContent(test.Map, test.fields)
+		result := tc.convertContent(test.Map, test.fields)
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("convertContent(%v, %v) incorrect, expected %v, got %v", test.Map, test.fields, test.expected, result)
 		}
@@ -102,30 +106,33 @@ func TestRemoveItem(t *testing.T) {
 	}
 }
 
+///*
 func TestTranslateField(t *testing.T) {
 	tests := []struct {
 		value    interface{}
-		field    TypeField
+		field    mapper.TypeField
 		expected interface{}
 	}{
 		{
 			"Unchanged",
-			TypeField{"", "", "default", false, false, false, false},
+			mapper.TypeField{"", "", "default", false, false, false, false},
 			"Unchanged",
 		},
 		{
 			[]interface{}{
-				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-1"}},
-				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-2"}},
-				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-3"}},
+				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-1", "linkType": "Entry"}},
+				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-2", "linkType": "Entry"}},
+				map[string]interface{}{"sys": map[string]interface{}{"id": "test-id-3", "linkType": "Entry"}},
 			},
-			TypeField{"", "", "Array", false, false, false, false},
+			mapper.TypeField{"", "", "Array", false, false, false, false},
 			[]string{"test-id-1.md", "test-id-2.md", "test-id-3.md"},
 		},
 	}
 
+	tc := TranslationConfig{}
+
 	for _, test := range tests {
-		result := translateField(test.value, test.field)
+		result := tc.translateField(test.value, test.field)
 
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("translateField(%v, %v) incorrect, expected %v, got %v", test.value, test.field.Type, test.expected, result)
@@ -133,3 +140,5 @@ func TestTranslateField(t *testing.T) {
 	}
 
 }
+
+//*/
