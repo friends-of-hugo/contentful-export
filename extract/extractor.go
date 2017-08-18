@@ -9,8 +9,7 @@ import (
 	"log"
 )
 
-// Extractor orchestrates the full process for command line use of the
-// Contentful Hugo Extractor. By parameterizing the Reader Configuration,
+// By parameterizing the Reader Configuration,
 // the HTTP Getter and the File Store, it enables the automated tests to
 // replace key functionalities with fakes, mocks and stubs.
 type Extractor struct {
