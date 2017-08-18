@@ -1,8 +1,8 @@
 package extract
 
 import (
-	"../read"
 	"../mapper"
+	"../read"
 	"../translate"
 	"../write"
 
@@ -11,12 +11,11 @@ import (
 
 type Extractor struct {
 	ReadConfig read.ReadConfig
-	Getter read.Getter
-	Store write.Store
+	Getter     read.Getter
+	Store      write.Store
 }
 
 func (e *Extractor) ProcessAll() {
-
 
 	cf := read.Contentful{
 		e.Getter,
@@ -63,5 +62,3 @@ func (e *Extractor) processItem(cf read.Contentful, typeResult mapper.TypeResult
 		e.processItem(cf, typeResult, nextPage)
 	}
 }
-
-

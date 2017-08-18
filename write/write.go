@@ -1,8 +1,8 @@
 package write
 
 import (
-	"os"
 	"log"
+	"os"
 	"strings"
 )
 

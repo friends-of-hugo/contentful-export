@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"../read"
-
-
 )
 
 type MockStore struct{}

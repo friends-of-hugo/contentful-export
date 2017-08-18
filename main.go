@@ -1,10 +1,10 @@
 package main
 
 import (
-	"os"
+	"./extract"
 	"./read"
 	"./write"
-	"./extract"
+	"os"
 )
 
 func main() {

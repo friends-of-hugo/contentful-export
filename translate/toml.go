@@ -1,8 +1,6 @@
 package translate
 
 import (
-
-
 	"github.com/naoina/toml"
 )
 

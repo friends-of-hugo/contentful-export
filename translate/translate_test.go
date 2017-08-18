@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 func TestConvertContent(t *testing.T) {
 	tests := []struct {
 		Map      map[string]interface{}

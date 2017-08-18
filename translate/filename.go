@@ -3,6 +3,7 @@ package translate
 import (
 	"../mapper"
 )
+
 func Dir(item mapper.Item) string {
 	dir := "./content/"
 	contentType := item.ContentType()

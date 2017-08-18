@@ -10,7 +10,6 @@ type Content struct {
 	Slug        string
 }
 
-
 func Translate(item mapper.Item, itemType mapper.Type) (fileName string, content string) {
 
 	content = convertContent(item.Fields, itemType.Fields).String()
