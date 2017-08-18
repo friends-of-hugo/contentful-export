@@ -9,12 +9,19 @@ import (
 	"log"
 )
 
+// Extractor orchestrates the full process for command line use of the
+// Contentful Hugo Extractor. By parameterizing the Reader Configuration,
+// the HTTP Getter and the File Store, it enables the automated tests to
+// replace key functionalities with fakes, mocks and stubs.
 type Extractor struct {
 	ReadConfig read.ReadConfig
 	Getter     read.Getter
 	Store      write.Store
 }
 
+// ProcessAll goes through all stages: Read, Map, Translate and Write.
+// Underwater, it uses private function processItems to allow reading
+// through multiple pages of items being returned from Contentful.
 func (e *Extractor) ProcessAll() {
 
 	cf := read.Contentful{
@@ -33,10 +40,13 @@ func (e *Extractor) ProcessAll() {
 
 	skip := 0
 
-	e.processItem(cf, typeResult, skip)
+	e.processItems(cf, typeResult, skip)
 
 }
-func (e *Extractor) processItem(cf read.Contentful, typeResult mapper.TypeResult, skip int) {
+
+// processItems is a recursive function going through all pages
+// returned by Contentful
+func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResult, skip int) {
 	itemsReader, err := cf.Items(skip)
 	if err != nil {
 		log.Fatal(err)
@@ -60,6 +70,6 @@ func (e *Extractor) processItem(cf read.Contentful, typeResult mapper.TypeResult
 
 	nextPage := itemResult.Skip + itemResult.Limit
 	if nextPage < itemResult.Total {
-		e.processItem(cf, typeResult, nextPage)
+		e.processItems(cf, typeResult, nextPage)
 	}
 }
