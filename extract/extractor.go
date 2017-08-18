@@ -46,13 +46,14 @@ func (e *Extractor) processItem(cf read.Contentful, typeResult mapper.TypeResult
 		log.Fatal(err)
 	}
 	writer := write.Writer{e.Store}
+	tc := translate.TranslationConfig{itemResult}
 	for _, item := range itemResult.Items {
 
 		itemType, err := typeResult.GetType(item.ContentType())
 		if err != nil {
 			log.Fatal(err)
 		}
-		fileName, content := translate.Translate(item, itemType)
+		fileName, content := tc.Translate(item, itemType)
 
 		writer.SaveToFile(fileName, content)
 	}

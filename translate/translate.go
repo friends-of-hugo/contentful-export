@@ -1,8 +1,10 @@
 package translate
 
-import (
-	"../mapper"
-)
+import "../mapper"
+
+type TranslationConfig struct {
+	Result mapper.ItemResult
+}
 
 type Content struct {
 	Params      map[string]interface{}
@@ -10,18 +12,18 @@ type Content struct {
 	Slug        string
 }
 
-func Translate(item mapper.Item, itemType mapper.Type) (fileName string, content string) {
+func (tc *TranslationConfig) Translate(item mapper.Item, itemType mapper.Type) (fileName string, content string) {
 
-	content = convertContent(item.Fields, itemType.Fields).String()
+	content = tc.convertContent(item.Fields, itemType.Fields).String()
 	fileName = Filename(item)
 	return
 }
 
-func convertContent(Map map[string]interface{}, fields []mapper.TypeField) Content {
+func (tc *TranslationConfig) convertContent(Map map[string]interface{}, fields []mapper.TypeField) Content {
 	fieldMap := map[string]interface{}{}
 
 	for _, field := range fields {
-		fieldMap[field.ID] = translateField(Map[field.ID], field)
+		fieldMap[field.ID] = tc.translateField(Map[field.ID], field)
 	}
 	mainContent := removeItem(fieldMap, "mainContent").(string)
 	slug, _ := fieldMap["slug"].(string)
@@ -42,7 +44,7 @@ func removeItem(Map map[string]interface{}, toDelete string) interface{} {
 	return value
 }
 
-func translateField(value interface{}, field mapper.TypeField) interface{} {
+func (tc *TranslationConfig) translateField(value interface{}, field mapper.TypeField) interface{} {
 	if field.Type == "Array" {
 		items := value.([]interface{})
 
@@ -51,9 +53,32 @@ func translateField(value interface{}, field mapper.TypeField) interface{} {
 
 		for i, el := range items {
 			sys := el.(map[string]interface{})["sys"].(map[string]interface{})
-			array[i] = sys["id"].(string) + ".md"
+			array[i] = tc.translateLink(sys)
 		}
 		return array
+	} else if field.Type == "Link" {
+		item := value.(map[string]interface{})
+		sys := item["sys"].(map[string]interface{})
+
+		return tc.translateLink(sys)
+
 	}
 	return value
+}
+
+func (tc *TranslationConfig) translateLink(sys map[string]interface{}) string {
+	linkType := sys["linkType"]
+	if linkType == "Entry" {
+		return sys["id"].(string) + ".md"
+	} else {
+		assets := tc.Result.Includes["Asset"]
+		for _, asset := range assets {
+
+			if sys["id"].(string) == asset.Sys.ID {
+				return asset.Fields["file"].(map[string]interface{})["url"].(string)
+			}
+		}
+		// Look up asset - but from where???
+	}
+	return "ERR"
 }

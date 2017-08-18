@@ -1,10 +1,11 @@
 package mapper
 
 type ItemResult struct {
-	Total int
-	Skip  int
-	Limit int
-	Items []Item
+	Total    int
+	Skip     int
+	Limit    int
+	Items    []Item
+	Includes map[string][]Item
 }
 
 type Item struct {
