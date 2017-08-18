@@ -106,7 +106,6 @@ func TestRemoveItem(t *testing.T) {
 	}
 }
 
-///*
 func TestTranslateField(t *testing.T) {
 	tests := []struct {
 		value    interface{}
@@ -140,5 +139,3 @@ func TestTranslateField(t *testing.T) {
 	}
 
 }
-
-//*/
