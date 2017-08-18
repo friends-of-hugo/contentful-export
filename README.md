@@ -1,6 +1,6 @@
-<img src="https://www.contentful.com/assets/images/logos/contentful-dark-1a51a42b.svg" width="180" /> &nbsp; <img src="https://gohugo.io/img/hugo-logo.png" width="150" />
-
 # Contentful Hugo Extractor
+
+<img src="https://www.contentful.com/assets/images/logos/contentful-dark-1a51a42b.svg" width="180" /> &nbsp; <img src="https://gohugo.io/img/hugo-logo.png" width="150" />
 
 This tool extracts all content from your Contentful space and makes it easily consubable by Hugo. You can run it locally or as part of a CI server like Travis.
 
