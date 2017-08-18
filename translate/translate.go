@@ -1,6 +1,11 @@
 package translate
 
-import "../mapper"
+import (
+	"fmt"
+	"regexp"
+
+	"../mapper"
+)
 
 type TranslationConfig struct {
 	Result mapper.ItemResult
@@ -61,6 +66,16 @@ func (tc *TranslationConfig) translateField(value interface{}, field mapper.Type
 		sys := item["sys"].(map[string]interface{})
 
 		return tc.translateLink(sys)
+
+	} else if field.Type == "Date" {
+		re, err := regexp.Compile(`([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2})(\+[0-9]{2}:[0-9]{2})?`) // want to know what is in front of 'at'
+		if err != nil {
+			fmt.Println(err)
+		}
+		res := re.FindAllStringSubmatch(value.(string), -1)
+		if len(res) > 0 {
+			value = fmt.Sprintf("%v:00%v", res[0][1], res[0][2])
+		}
 
 	}
 	return value
