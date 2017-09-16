@@ -13,9 +13,10 @@ import (
 // the HTTP Getter and the File Store, it enables the automated tests to
 // replace key functionalities with fakes, mocks and stubs.
 type Extractor struct {
-	ReadConfig read.ReadConfig
-	Getter     read.Getter
-	Store      write.Store
+	ReadConfig  read.ReadConfig
+	Getter      read.Getter
+	TransConfig translate.TransConfig
+	Store       write.Store
 }
 
 // ProcessAll goes through all stages: Read, Map, Translate and Write.
@@ -55,7 +56,7 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 		log.Fatal(err)
 	}
 	writer := write.Writer{e.Store}
-	tc := translate.TranslationConfig{itemResult}
+	tc := translate.TranslationContext{itemResult, e.TransConfig}
 	for _, item := range itemResult.Items {
 
 		itemType, err := typeResult.GetType(item.ContentType())

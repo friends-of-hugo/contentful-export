@@ -7,8 +7,9 @@ import (
 	"../mapper"
 )
 
-type TranslationConfig struct {
-	Result mapper.ItemResult
+type TranslationContext struct {
+	Result      mapper.ItemResult
+	TransConfig TransConfig
 }
 
 type Content struct {
@@ -17,14 +18,20 @@ type Content struct {
 	Slug        string
 }
 
-func (tc *TranslationConfig) Translate(item mapper.Item, itemType mapper.Type) (fileName string, content string) {
+func (tc *TranslationContext) Translate(item mapper.Item, itemType mapper.Type) (fileName string, content string) {
 
-	content = tc.convertContent(item.Fields, itemType.Fields).String()
+	rawContent := tc.convertContent(item.Fields, itemType.Fields)
+	if tc.TransConfig.Encoding == "yaml" {
+		content = rawContent.ToYaml()
+	} else {
+		content = rawContent.ToToml()
+	}
+
 	fileName = Filename(item)
 	return
 }
 
-func (tc *TranslationConfig) convertContent(Map map[string]interface{}, fields []mapper.TypeField) Content {
+func (tc *TranslationContext) convertContent(Map map[string]interface{}, fields []mapper.TypeField) Content {
 	fieldMap := map[string]interface{}{}
 
 	for _, field := range fields {
@@ -49,7 +56,7 @@ func removeItem(Map map[string]interface{}, toDelete string) interface{} {
 	return value
 }
 
-func (tc *TranslationConfig) translateField(value interface{}, field mapper.TypeField) interface{} {
+func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField) interface{} {
 	if field.Type == "Array" {
 		items := value.([]interface{})
 
@@ -81,7 +88,7 @@ func (tc *TranslationConfig) translateField(value interface{}, field mapper.Type
 	return value
 }
 
-func (tc *TranslationConfig) translateLink(sys map[string]interface{}) string {
+func (tc *TranslationContext) translateLink(sys map[string]interface{}) string {
 	linkType := sys["linkType"]
 	if linkType == "Entry" {
 		return sys["id"].(string) + ".md"

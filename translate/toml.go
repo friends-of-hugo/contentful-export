@@ -4,7 +4,7 @@ import (
 	"github.com/naoina/toml"
 )
 
-func (s Content) String() string {
+func (s Content) ToToml() string {
 	result := "+++\n"
 	output, err := toml.Marshal(s.Params)
 	if err != nil {

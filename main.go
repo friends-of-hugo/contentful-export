@@ -1,10 +1,12 @@
 package main
 
 import (
+	"os"
+
 	"./extract"
 	"./read"
+	"./translate"
 	"./write"
-	"os"
 )
 
 func main() {
@@ -17,6 +19,7 @@ func main() {
 			"en-US",
 		},
 		read.HttpGetter{},
+		translate.LoadConfig(),
 		write.FileStore{},
 	}
 

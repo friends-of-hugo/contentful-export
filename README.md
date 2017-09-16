@@ -24,3 +24,12 @@ Special cases:
  - Fields named mainContent are used for the main content of the markdown file
  - File names are based on the ID of the item to make it easily referencable from related items (for the machine, not humans)
 
+## Configuration
+
+### Configure YAML output
+
+While the default output is in TOML format, it is also possible to output content in YAML format. To achieve this, ensure there is a config.toml file in the work directory of contentful-hugo with the following content:
+
+```
+encoding = "yaml"
+```
