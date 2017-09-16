@@ -28,7 +28,7 @@ Special cases:
 
 ### Configure YAML output
 
-While the default output is in TOML format, it is also possible to output content in YAML format. To achieve this, ensure there is a config.toml file in the work directory of contentful-hugo with the following content:
+While the default output is in TOML format, it is also possible to output content in YAML format. To achieve this, ensure there is a `extract-config.toml` file in the work directory of contentful-hugo with the following content:
 
 ```
 encoding = "yaml"

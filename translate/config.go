@@ -19,7 +19,7 @@ type TransConfig struct {
 }
 
 func LoadConfig() TransConfig {
-	fileName := "config.toml"
+	fileName := "extract-config.toml"
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		return TransConfig{}
 	}
