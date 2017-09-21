@@ -58,6 +58,9 @@ func removeItem(Map map[string]interface{}, toDelete string) interface{} {
 
 func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField) interface{} {
 	if field.Type == "Array" {
+		if value == nil {
+			return []interface{}{}
+		}
 		items := value.([]interface{})
 
 		var array []string
