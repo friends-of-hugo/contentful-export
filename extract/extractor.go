@@ -1,10 +1,10 @@
 package extract
 
 import (
-	"../mapper"
-	"../read"
-	"../translate"
-	"../write"
+	"github.com/icyitscold/contentful-hugo/mapper"
+	"github.com/icyitscold/contentful-hugo/read"
+	"github.com/icyitscold/contentful-hugo/translate"
+	"github.com/icyitscold/contentful-hugo/write"
 
 	"log"
 )
