@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"../mapper"
+	"github.com/icyitscold/contentful-hugo/mapper"
 )
 
 func TestConvertContent(t *testing.T) {

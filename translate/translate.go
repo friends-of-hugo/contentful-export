@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"../mapper"
+	"github.com/icyitscold/contentful-hugo/mapper"
 )
 
 type TranslationContext struct {
@@ -35,7 +35,10 @@ func (tc *TranslationContext) convertContent(Map map[string]interface{}, fields 
 	fieldMap := map[string]interface{}{}
 
 	for _, field := range fields {
-		fieldMap[field.ID] = tc.translateField(Map[field.ID], field)
+		value := tc.translateField(Map[field.ID], field)
+		if value != nil {
+			fieldMap[field.ID] = value
+		}
 	}
 	mainContent := removeItem(fieldMap, "mainContent").(string)
 	slug, _ := fieldMap["slug"].(string)
@@ -72,6 +75,9 @@ func (tc *TranslationContext) translateField(value interface{}, field mapper.Typ
 		}
 		return array
 	} else if field.Type == "Link" {
+		if value == nil {
+			return value
+		}
 		item := value.(map[string]interface{})
 		sys := item["sys"].(map[string]interface{})
 

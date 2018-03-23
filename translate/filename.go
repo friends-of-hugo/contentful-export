@@ -1,7 +1,7 @@
 package translate
 
 import (
-	"../mapper"
+	"github.com/icyitscold/contentful-hugo/mapper"
 )
 
 func Dir(item mapper.Item) string {
