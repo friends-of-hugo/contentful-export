@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"./extract"
-	"./read"
-	"./translate"
-	"./write"
+	"github.com/icyitscold/contentful-hugo/extract"
+	"github.com/icyitscold/contentful-hugo/read"
+	"github.com/icyitscold/contentful-hugo/translate"
+	"github.com/icyitscold/contentful-hugo/write"
 )
 
 func main() {
