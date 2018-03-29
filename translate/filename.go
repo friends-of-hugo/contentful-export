@@ -1,6 +1,8 @@
 package translate
 
 import (
+	"strings"
+
 	"github.com/icyitscold/contentful-hugo/mapper"
 )
 
@@ -8,7 +10,7 @@ func Dir(item mapper.Item) string {
 	dir := "./content/"
 	contentType := item.ContentType()
 	if contentType != "homepage" {
-		dir += contentType + "/"
+		dir += strings.ToLower(contentType) + "/"
 	}
 	return dir
 }
