@@ -4,14 +4,31 @@
 
 This tool extracts all content from your Contentful space and makes it easily consumable by Hugo. You can run it locally or as part of a CI server like Travis.
 
+## Install
+
+### Go Install Method
+
+Assuming Go (1.10 +) is installed as well as [dep](https://golang.github.io/dep/)
+```
+go get -u github.com/icyitscold/contentful-hugo
+cd $GOPATH/src/github.com/icyitscold/contentful-hugo
+dep ensure
+go install
+```
+
 ## Usage
 
-The tool requires two environment variables to work:
+The tool requires two parameters to work, a contentful space id and API key. These can be provided as command line flags or as environment variables
 
 ```
-export CONTENTFUL_KEY=YOUR-ACCESS-KEY-HERE
-export SPACE_ID=YOUR-ID-HERE
+export CONTENTFUL_API_KEY=YOUR-ACCESS-KEY-HERE
+export CONTENTFUL_API_SPACE=YOUR-ID-HERE
 contentful-hugo
+```
+
+```
+contentful-hugo --space-id [my_space_id] --api-key [my_content_delivery_key]
+
 ```
 
 ## Expected output
