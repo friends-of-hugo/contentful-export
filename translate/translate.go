@@ -75,7 +75,9 @@ func (tc *TranslationContext) translateField(value interface{}, field mapper.Typ
 				array[i] = s
 			} else {
 				sys := el.(map[string]interface{})["sys"].(map[string]interface{})
-				array[i] = tc.translateLink(sys)
+				if s, ok := tc.translateLink(sys).(string); ok {
+					array[i] = s
+				}
 			}
 		}
 		return array
@@ -102,16 +104,15 @@ func (tc *TranslationContext) translateField(value interface{}, field mapper.Typ
 	return value
 }
 
-func (tc *TranslationContext) translateLink(sys map[string]interface{}) string {
+func (tc *TranslationContext) translateLink(sys map[string]interface{}) interface{} {
 	linkType := sys["linkType"]
 	if linkType == "Entry" {
 		return sys["id"].(string) + ".md"
 	} else {
 		assets := tc.Result.Includes["Asset"]
 		for _, asset := range assets {
-
 			if sys["id"].(string) == asset.Sys.ID {
-				return asset.Fields["file"].(map[string]interface{})["url"].(string)
+				return asset.Fields
 			}
 		}
 		// Look up asset - but from where???
