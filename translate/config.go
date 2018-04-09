@@ -16,10 +16,11 @@ import (
 
 type TransConfig struct {
 	Encoding string
+	Section  map[string]interface{}
 }
 
-func LoadConfig() TransConfig {
-	fileName := "extract-config.toml"
+func LoadConfig(config string) TransConfig {
+	fileName := config
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		return TransConfig{}
 	}
@@ -29,10 +30,10 @@ func LoadConfig() TransConfig {
 		panic(err)
 	}
 	defer f.Close()
-	var config TransConfig
-	if err := toml.NewDecoder(f).Decode(&config); err != nil {
+	var conf TransConfig
+	if err := toml.NewDecoder(f).Decode(&conf); err != nil {
 		panic(err)
 	}
 
-	return config
+	return conf
 }

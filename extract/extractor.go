@@ -1,10 +1,10 @@
 package extract
 
 import (
-	"github.com/icyitscold/contentful-hugo/mapper"
-	"github.com/icyitscold/contentful-hugo/read"
-	"github.com/icyitscold/contentful-hugo/translate"
-	"github.com/icyitscold/contentful-hugo/write"
+	"github.com/bhsi-cinch/contentful-hugo/mapper"
+	"github.com/bhsi-cinch/contentful-hugo/read"
+	"github.com/bhsi-cinch/contentful-hugo/translate"
+	"github.com/bhsi-cinch/contentful-hugo/write"
 
 	"log"
 )
@@ -36,6 +36,14 @@ func (e *Extractor) ProcessAll() {
 	typeResult, err := mapper.MapTypes(typesReader)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	writer := write.Writer{e.Store}
+	for _, t := range typeResult.Items {
+		fileName, content := translate.EstablishSection(t, e.TransConfig)
+		if fileName != "" && content != "" {
+			writer.SaveToFile(fileName, content)
+		}
 	}
 
 	skip := 0

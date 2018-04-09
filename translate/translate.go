@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/icyitscold/contentful-hugo/mapper"
+	"github.com/bhsi-cinch/contentful-hugo/mapper"
 )
 
 type TranslationContext struct {
@@ -70,8 +70,13 @@ func (tc *TranslationContext) translateField(value interface{}, field mapper.Typ
 		array = make([]string, len(items))
 
 		for i, el := range items {
-			sys := el.(map[string]interface{})["sys"].(map[string]interface{})
-			array[i] = tc.translateLink(sys)
+			s, isString := el.(string)
+			if isString {
+				array[i] = s
+			} else {
+				sys := el.(map[string]interface{})["sys"].(map[string]interface{})
+				array[i] = tc.translateLink(sys)
+			}
 		}
 		return array
 	} else if field.Type == "Link" {
