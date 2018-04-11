@@ -40,7 +40,7 @@ func (e *Extractor) ProcessAll() {
 
 	writer := write.Writer{e.Store}
 	for _, t := range typeResult.Items {
-		fileName, content := translate.EstablishSection(t, e.TransConfig)
+		fileName, content := translate.EstablishDirLevelConf(t, e.TransConfig)
 		if fileName != "" && content != "" {
 			writer.SaveToFile(fileName, content)
 		}

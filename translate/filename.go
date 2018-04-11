@@ -8,7 +8,7 @@ import (
 
 const baseDir string = "./content/"
 const idxFile string = "index.md"
-const rootIdxFile string = "_" + idxFile
+const sectionIdxFile string = "_" + idxFile
 
 func Dir(contentType string) string {
 	dir := baseDir
@@ -21,13 +21,18 @@ func Dir(contentType string) string {
 func Filename(item mapper.Item) string {
 	dir := Dir(item.ContentType())
 	if dir == baseDir {
-		return dir + rootIdxFile
+		return dir + sectionIdxFile
 	}
 
 	return dir + item.Sys.ID + ".md"
 }
 
 func SectionFilename(t mapper.Type) string {
+	dir := Dir(t.Sys.ID)
+	return dir + sectionIdxFile
+}
+
+func LeafBundleFilename(t mapper.Type) string {
 	dir := Dir(t.Sys.ID)
 	return dir + idxFile
 }

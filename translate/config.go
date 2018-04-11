@@ -15,8 +15,9 @@ import (
 )
 
 type TransConfig struct {
-	Encoding string
-	Section  map[string]interface{}
+	Encoding   string
+	Section    map[string]interface{}
+	LeafBundle map[string]interface{}
 }
 
 func LoadConfig(config string) TransConfig {
