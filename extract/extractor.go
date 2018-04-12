@@ -22,7 +22,7 @@ type Extractor struct {
 // ProcessAll goes through all stages: Read, Map, Translate and Write.
 // Underwater, it uses private function processItems to allow reading
 // through multiple pages of items being returned from Contentful.
-func (e *Extractor) ProcessAll() {
+func (e *Extractor) ProcessAll() error {
 
 	cf := read.Contentful{
 		e.Getter,
@@ -31,11 +31,13 @@ func (e *Extractor) ProcessAll() {
 	typesReader, err := cf.Types()
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	typeResult, err := mapper.MapTypes(typesReader)
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	writer := write.Writer{e.Store}
@@ -49,7 +51,7 @@ func (e *Extractor) ProcessAll() {
 	skip := 0
 
 	e.processItems(cf, typeResult, skip)
-
+	return nil
 }
 
 // processItems is a recursive function going through all pages

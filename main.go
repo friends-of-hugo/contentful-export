@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"github.com/bhsi-cinch/contentful-hugo/extract"
@@ -16,7 +17,7 @@ func main() {
 	config := flag.String("config-file", "extract-config.toml", "Path to the TOML config file to load for export config")
 
 	flag.Parse()
-
+	fmt.Println("Begin contentful export : ", *space)
 	extractor := extract.Extractor{
 		read.ReadConfig{
 			"https://cdn.contentful.com",
@@ -29,5 +30,10 @@ func main() {
 		write.FileStore{},
 	}
 
-	extractor.ProcessAll()
+	err := extractor.ProcessAll()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("finished")
+	}
 }
