@@ -1,7 +1,7 @@
 package read
 
 type ReadConfig struct {
-	UrlBase     string
+	UsePreview  bool
 	SpaceID     string
 	AccessToken string
 	Locale      string

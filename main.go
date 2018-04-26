@@ -15,19 +15,20 @@ func main() {
 	space := flag.String("space-id", os.Getenv("CONTENTFUL_API_SPACE"), "The contentful space id to export data from")
 	key := flag.String("api-key", os.Getenv("CONTENTFUL_API_KEY"), "The contentful delivery API access token")
 	config := flag.String("config-file", "extract-config.toml", "Path to the TOML config file to load for export config")
-
+	preview := flag.Bool("p", false, "Use contentful's preview API so that draft content is downloaded")
 	flag.Parse()
+
 	fmt.Println("Begin contentful export : ", *space)
 	extractor := extract.Extractor{
-		read.ReadConfig{
-			"https://cdn.contentful.com",
-			*space,
-			*key,
-			"en-US",
+		ReadConfig: read.ReadConfig{
+			UsePreview:  *preview,
+			SpaceID:     *space,
+			AccessToken: *key,
+			Locale:      "en-US",
 		},
-		read.HttpGetter{},
-		translate.LoadConfig(*config),
-		write.FileStore{},
+		Getter:      read.HttpGetter{},
+		TransConfig: translate.LoadConfig(*config),
+		Store:       write.FileStore{},
 	}
 
 	err := extractor.ProcessAll()
