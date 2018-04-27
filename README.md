@@ -24,8 +24,9 @@ contentful-hugo [Flags]
 
 Flags:
  -space-id=value      "Id of the contentful space from which to extract content. If not present will default to an environment variable named `$CONTENTFUL_API_SPACE`"
- -api-token=value     "API Key used to authenticate with contentful for content delivery. If not present will default to an environment variable named `$CONTENTFUL_API_KEY`"
+ -api-token=value     "API Key used to authenticate with contentful for content delivery. If not present will default to an environment variable named `$CONTENTFUL_API_KEY`. The preview API key should be provided if -p is used."
  -config-file=value   "Path to the config TOML file to load. Defauls to `./extract-config.tml`"
+ -p                   "If present, the contentful preview API will be used so that draft content will be included as part of the export."
  ```
 
 The tool requires two parameters to work, a contentful space id and API key. These can be provided as command line flags or as environment variables
