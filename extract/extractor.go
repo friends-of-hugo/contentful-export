@@ -9,9 +9,9 @@ import (
 	"log"
 )
 
-// By parameterizing the Reader Configuration,
-// the HTTP Getter and the File Store, it enables the automated tests to
-// replace key functionalities with fakes, mocks and stubs.
+// Extractor enables the automated tests to replace key functionalities
+// with fakes, mocks and stubs by parameterizing the Reader Configuration,
+// the HTTP Getter and the File Store.
 type Extractor struct {
 	ReadConfig  read.ReadConfig
 	Getter      read.Getter
@@ -25,8 +25,8 @@ type Extractor struct {
 func (e *Extractor) ProcessAll() error {
 
 	cf := read.Contentful{
-		e.Getter,
-		e.ReadConfig,
+		Getter:     e.Getter,
+		ReadConfig: e.ReadConfig,
 	}
 	typesReader, err := cf.Types()
 	if err != nil {
@@ -40,7 +40,7 @@ func (e *Extractor) ProcessAll() error {
 		return err
 	}
 
-	writer := write.Writer{e.Store}
+	writer := write.Writer{Store: e.Store}
 	for _, t := range typeResult.Items {
 		fileName, content := translate.EstablishDirLevelConf(t, e.TransConfig)
 		if fileName != "" && content != "" {
@@ -61,12 +61,14 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	itemResult, err := mapper.MapItems(itemsReader)
 	if err != nil {
 		log.Fatal(err)
 	}
-	writer := write.Writer{e.Store}
-	tc := translate.TranslationContext{itemResult, e.TransConfig}
+
+	writer := write.Writer{Store: e.Store}
+	tc := translate.TranslationContext{Result: itemResult, TransConfig: e.TransConfig}
 	for _, item := range itemResult.Items {
 
 		itemType, err := typeResult.GetType(item.ContentType())
