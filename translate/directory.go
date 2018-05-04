@@ -1,6 +1,6 @@
 package translate
 
-import "github.com/bhsi-cinch/contentful-hugo/mapper"
+import "github.com/adriaandejonge/contentful-hugo/mapper"
 
 // EstablishDirLevelConf provides the ability to augment content directories with with LeafBundle (index.md)
 // or Section level (_index.md) frontmatter during the export process.

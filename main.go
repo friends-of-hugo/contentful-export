@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bhsi-cinch/contentful-hugo/extract"
-	"github.com/bhsi-cinch/contentful-hugo/read"
-	"github.com/bhsi-cinch/contentful-hugo/translate"
-	"github.com/bhsi-cinch/contentful-hugo/write"
+	"github.com/adriaandejonge/contentful-hugo/extract"
+	"github.com/adriaandejonge/contentful-hugo/read"
+	"github.com/adriaandejonge/contentful-hugo/translate"
+	"github.com/adriaandejonge/contentful-hugo/write"
 )
 
 func main() {

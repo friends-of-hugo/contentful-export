@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bhsi-cinch/contentful-hugo/mapper"
+	"github.com/adriaandejonge/contentful-hugo/mapper"
 )
 
 func TestConvertContent(t *testing.T) {
