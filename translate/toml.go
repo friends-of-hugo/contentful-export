@@ -5,15 +5,21 @@ import (
 )
 
 func (s Content) ToToml() string {
+	result := WriteTomlFrontmatter(s.Params)
+	result += s.MainContent
+
+	return result
+}
+
+func WriteTomlFrontmatter(fm interface{}) string {
 	result := "+++\n"
-	output, err := toml.Marshal(s.Params)
+	output, err := toml.Marshal(fm)
 	if err != nil {
 		return "ERR"
 	}
 
 	result += string(output)
 	result += "+++\n"
-	result += s.MainContent
 
 	return result
 }
