@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"../read"
+	"github.com/bhsi-cinch/contentful-hugo/read"
 )
 
 type MockStore struct{}

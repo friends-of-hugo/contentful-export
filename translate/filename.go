@@ -1,23 +1,38 @@
 package translate
 
 import (
-	"../mapper"
+	"strings"
+
+	"github.com/bhsi-cinch/contentful-hugo/mapper"
 )
 
-func Dir(item mapper.Item) string {
-	dir := "./content/"
-	contentType := item.ContentType()
+const baseDir string = "./content/"
+const idxFile string = "index.md"
+const sectionIdxFile string = "_" + idxFile
+
+func Dir(contentType string) string {
+	dir := baseDir
 	if contentType != "homepage" {
-		dir += contentType + "/"
+		dir += strings.ToLower(contentType) + "/"
 	}
 	return dir
 }
 
 func Filename(item mapper.Item) string {
-	dir := Dir(item)
-	if dir == "./content/" {
-		return dir + "_index.md"
+	dir := Dir(item.ContentType())
+	if dir == baseDir {
+		return dir + sectionIdxFile
 	}
 
 	return dir + item.Sys.ID + ".md"
+}
+
+func SectionFilename(t mapper.Type) string {
+	dir := Dir(t.Sys.ID)
+	return dir + sectionIdxFile
+}
+
+func LeafBundleFilename(t mapper.Type) string {
+	dir := Dir(t.Sys.ID)
+	return dir + idxFile
 }
