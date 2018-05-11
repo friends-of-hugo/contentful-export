@@ -19,6 +19,10 @@ func (ms MockStore) WriteFile(filename string, data []byte, perm os.FileMode) er
 	return nil
 }
 
+func (ms MockStore) ReadFromFile(path string) (result []byte, err error) {
+	return nil, nil
+}
+
 type MockGetter struct {
 	JSON []string
 }
@@ -551,7 +555,8 @@ func TestExtractor(t *testing.T) {
 			Locale:      "en-US",
 		},
 		Getter: MockGetter{[]string{testTypes, testContent}},
-		Store:  MockStore{},
+		RStore: MockStore{},
+		WStore: MockStore{},
 	}
 
 	extractor.ProcessAll()

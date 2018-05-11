@@ -36,5 +36,6 @@ func (c *Contentful) get(endpoint string) (rc io.ReadCloser, err error) {
 	if c.ReadConfig.UsePreview {
 		urlBase = previewURL
 	}
+
 	return c.Getter.Get(urlBase + endpoint)
 }

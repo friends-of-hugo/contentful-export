@@ -15,8 +15,9 @@ import (
 type Extractor struct {
 	ReadConfig  read.ReadConfig
 	Getter      read.Getter
+	RStore      read.Store
 	TransConfig translate.TransConfig
-	Store       write.Store
+	WStore      write.Store
 }
 
 // ProcessAll goes through all stages: Read, Map, Translate and Write.
@@ -40,7 +41,7 @@ func (e *Extractor) ProcessAll() error {
 		return err
 	}
 
-	writer := write.Writer{Store: e.Store}
+	writer := write.Writer{Store: e.WStore}
 	for _, t := range typeResult.Items {
 		fileName, content := translate.EstablishDirLevelConf(t, e.TransConfig)
 		if fileName != "" && content != "" {
@@ -54,8 +55,8 @@ func (e *Extractor) ProcessAll() error {
 	return nil
 }
 
-// processItems is a recursive function going through all pages
-// returned by Contentful
+// processItems is a recursive function which goes through all pages
+// returned by Contentful and creates a markdownfile for each.
 func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResult, skip int) {
 	itemsReader, err := cf.Items(skip)
 	if err != nil {
@@ -67,17 +68,37 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 		log.Fatal(err)
 	}
 
-	writer := write.Writer{Store: e.Store}
+	archetypeDataMap := make(map[string]map[string]interface{})
+	reader := read.Reader{Store: e.RStore}
+	writer := write.Writer{Store: e.WStore}
 	tc := translate.TranslationContext{Result: itemResult, TransConfig: e.TransConfig}
 	for _, item := range itemResult.Items {
-
-		itemType, err := typeResult.GetType(item.ContentType())
+		contentType := item.ContentType()
+		itemType, err := typeResult.GetType(contentType)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
-		fileName, content := tc.Translate(item, itemType)
 
-		writer.SaveToFile(fileName, content)
+		if archetypeDataMap[contentType] == nil {
+			result, err := reader.ViewFromFile(translate.GetArchetypeFilename(contentType))
+			if err == nil {
+				archeMap, err := tc.TranslateFromMarkdown(result)
+				if err != nil {
+					log.Fatalln(err)
+				}
+
+				archetypeDataMap[contentType] = archeMap
+			} else {
+
+				archetypeDataMap[contentType] = make(map[string]interface{})
+			}
+		}
+
+		contentMap := tc.MapContentValuesToTypeNames(item.Fields, itemType.Fields)
+		overriddenContentmap := tc.MergeMaps(archetypeDataMap[contentType], contentMap)
+		contentMarkdown := tc.TranslateToMarkdown(tc.ConvertToContent(overriddenContentmap))
+		fileName := translate.Filename(item)
+		writer.SaveToFile(fileName, contentMarkdown)
 	}
 
 	nextPage := itemResult.Skip + itemResult.Limit

@@ -13,7 +13,6 @@ func EstablishDirLevelConf(t mapper.Type, tc TransConfig) (string, string) {
 			content = WriteYamlFrontmatter(tc.Section[t.Sys.ID])
 		} else {
 			content = WriteTomlFrontmatter(tc.Section[t.Sys.ID])
-
 		}
 	}
 	if tc.LeafBundle[t.Sys.ID] != nil {
@@ -22,8 +21,8 @@ func EstablishDirLevelConf(t mapper.Type, tc TransConfig) (string, string) {
 			content = WriteYamlFrontmatter(tc.LeafBundle[t.Sys.ID])
 		} else {
 			content = WriteTomlFrontmatter(tc.LeafBundle[t.Sys.ID])
-
 		}
 	}
+
 	return fileName, content
 }
