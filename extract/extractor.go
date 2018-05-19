@@ -1,10 +1,10 @@
 package extract
 
 import (
-	"github.com/adriaandejonge/contentful-hugo/mapper"
-	"github.com/adriaandejonge/contentful-hugo/read"
-	"github.com/adriaandejonge/contentful-hugo/translate"
-	"github.com/adriaandejonge/contentful-hugo/write"
+	"github.com/friends-of-hugo/contentful-export/mapper"
+	"github.com/friends-of-hugo/contentful-export/read"
+	"github.com/friends-of-hugo/contentful-export/translate"
+	"github.com/friends-of-hugo/contentful-export/write"
 
 	"log"
 )

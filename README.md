@@ -11,8 +11,8 @@ This tool extracts all content from your Contentful space and makes it easily co
 Assuming Go (1.10 +) is installed as well as [dep](https://golang.github.io/dep/)
 
 ``` sh
-go get -u "github.com/adriaandejonge/contentful-hugo"
-cd "$GOPATH/src/github.com/adriaandejonge/contentful-hugo"
+go get -u "github.com/friends-of-hugo/contentful-export"
+cd "$GOPATH/src/github.com/friends-of-hugo/contentful-export"
 dep ensure
 go install
 ```
