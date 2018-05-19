@@ -19,8 +19,12 @@ func (ms MockStore) WriteFile(filename string, data []byte, perm os.FileMode) er
 	return nil
 }
 
+func (ms MockStore) ReadFromFile(path string) (result []byte, err error) {
+	return nil, nil
+}
+
 type MockGetter struct {
-	Json []string
+	JSON []string
 }
 
 type MockReaderCloser struct {
@@ -38,7 +42,7 @@ func (mrc MockReaderCloser) Close() error {
 var count int
 
 func (mg MockGetter) Get(url string) (result io.ReadCloser, err error) {
-	mrc := MockReaderCloser{strings.NewReader(mg.Json[count])}
+	mrc := MockReaderCloser{strings.NewReader(mg.JSON[count])}
 	count++
 	return mrc, nil
 }
@@ -544,14 +548,15 @@ func TestExtractor(t *testing.T) {
 	`
 
 	extractor := Extractor{
-		read.ReadConfig{
-			"https://not.used.com",
-			"my-fake-space-id",
-			"my-fake-content-key",
-			"en-US",
+		ReadConfig: read.ReadConfig{
+			UsePreview:  false,
+			SpaceID:     "my-fake-space-id",
+			AccessToken: "my-fake-content-key",
+			Locale:      "en-US",
 		},
-		MockGetter{[]string{testTypes, testContent}},
-		MockStore{},
+		Getter: MockGetter{[]string{testTypes, testContent}},
+		RStore: MockStore{},
+		WStore: MockStore{},
 	}
 
 	extractor.ProcessAll()

@@ -28,7 +28,8 @@ func main() {
 		},
 		Getter:      read.HttpGetter{},
 		TransConfig: translate.LoadConfig(*config),
-		Store:       write.FileStore{},
+		WStore:      write.FileStore{},
+		RStore:      read.FileStore{},
 	}
 
 	err := extractor.ProcessAll()
