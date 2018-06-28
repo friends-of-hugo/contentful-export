@@ -135,6 +135,6 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 
 	nextPage := itemResult.Skip + itemResult.Limit
 	if nextPage < itemResult.Total {
-		e.processItems(cf, typeResult, nextPage)
+		e.processItems(cf, typeResult, nextPage, ids)
 	}
 }

@@ -179,7 +179,7 @@ func (tc *TranslationContext) translateDateField(value interface{}) interface{} 
 	return value
 }
 
-func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField, ids map[string]string)) interface{} {
+func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField, ids map[string]string) interface{} {
 	if field.Type == "Array" {
 		return tc.translateArrayField(value, ids)
 
