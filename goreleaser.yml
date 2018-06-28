@@ -1,6 +1,6 @@
 build:
   main: main.go
-  binary: contentful-hugo
+  binary: contentful-hugo-export
   ldflags: -s -w -X hugolib.BuildDate={{.Date}}
   goos:
     - darwin
