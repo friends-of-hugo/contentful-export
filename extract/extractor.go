@@ -1,10 +1,10 @@
 package extract
 
 import (
-	"github.com/friends-of-hugo/contentful-export/mapper"
-	"github.com/friends-of-hugo/contentful-export/read"
-	"github.com/friends-of-hugo/contentful-export/translate"
-	"github.com/friends-of-hugo/contentful-export/write"
+	"github.com/3DHubs/contentful-hugo-export/mapper"
+	"github.com/3DHubs/contentful-hugo-export/read"
+	"github.com/3DHubs/contentful-hugo-export/translate"
+	"github.com/3DHubs/contentful-hugo-export/write"
 
 	"log"
 )

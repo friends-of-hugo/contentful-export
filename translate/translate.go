@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/friends-of-hugo/contentful-export/mapper"
+	"github.com/3DHubs/contentful-hugo-export/mapper"
 )
 
 type TranslationContext struct {
