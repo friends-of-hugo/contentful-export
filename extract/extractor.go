@@ -1,10 +1,10 @@
 package extract
 
 import (
-	"github.com/friends-of-hugo/contentful-export/mapper"
-	"github.com/friends-of-hugo/contentful-export/read"
-	"github.com/friends-of-hugo/contentful-export/translate"
-	"github.com/friends-of-hugo/contentful-export/write"
+	"github.com/3DHubs/contentful-hugo-export/mapper"
+	"github.com/3DHubs/contentful-hugo-export/read"
+	"github.com/3DHubs/contentful-hugo-export/translate"
+	"github.com/3DHubs/contentful-hugo-export/write"
 
 	"log"
 )
@@ -51,13 +51,45 @@ func (e *Extractor) ProcessAll() error {
 
 	skip := 0
 
-	e.processItems(cf, typeResult, skip)
+	var ids map[string]string
+	ids = make(map[string]string)
+	ids = e.processContentTypes(cf, typeResult, skip, ids)
+
+	e.processItems(cf, typeResult, skip, ids)
 	return nil
 }
 
+// processContentTypes is a recursive function which goes through all pages
+// to make a maping of ids to contentTypes
+func (e *Extractor) processContentTypes(cf read.Contentful, typeResult mapper.TypeResult, skip int, ids map[string]string) (map[string]string ) {
+	itemsReader, err := cf.Items(skip)
+	if err != nil {
+	    log.Fatal(err)
+	}
+	itemResult, err := mapper.MapItems(itemsReader)
+	if err != nil {
+	    log.Fatal(err)
+	}
+
+	for _, item := range itemResult.Items {
+	    contentType := item.ContentType()
+	    ids[item.Sys.ID] = contentType
+	}
+
+	nextPage := itemResult.Skip + itemResult.Limit
+	if nextPage < itemResult.Total {
+	    var nextPageIds = e.processContentTypes(cf, typeResult, nextPage, ids)
+	    for k, v := range nextPageIds {
+	    ids[k] = v
+	    }
+	}
+	return ids
+}
+
+
 // processItems is a recursive function which goes through all pages
 // returned by Contentful and creates a markdownfile for each.
-func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResult, skip int) {
+func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResult, skip int, ids map[string]string) {
 	itemsReader, err := cf.Items(skip)
 	if err != nil {
 		log.Fatal(err)
@@ -94,7 +126,7 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 			}
 		}
 
-		contentMap := tc.MapContentValuesToTypeNames(item.Fields, itemType.Fields)
+		contentMap := tc.MapContentValuesToTypeNames(item.Fields, itemType.Fields, ids)
 		overriddenContentmap := tc.MergeMaps(archetypeDataMap[contentType], contentMap)
 		contentMarkdown := tc.TranslateToMarkdown(tc.ConvertToContent(overriddenContentmap))
 		fileName := translate.Filename(item)
@@ -103,6 +135,6 @@ func (e *Extractor) processItems(cf read.Contentful, typeResult mapper.TypeResul
 
 	nextPage := itemResult.Skip + itemResult.Limit
 	if nextPage < itemResult.Total {
-		e.processItems(cf, typeResult, nextPage)
+		e.processItems(cf, typeResult, nextPage, ids)
 	}
 }

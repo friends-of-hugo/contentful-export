@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/friends-of-hugo/contentful-export/mapper"
+	"github.com/3DHubs/contentful-hugo-export/mapper"
 )
 
 func TestTranslateFromMarkdown(t *testing.T) {

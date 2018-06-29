@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strings"
 
-	"github.com/friends-of-hugo/contentful-export/mapper"
+	"github.com/3DHubs/contentful-hugo-export/mapper"
 )
 
 type TranslationContext struct {
@@ -60,10 +61,10 @@ func (tc *TranslationContext) MergeMaps(itemDefault map[string]interface{}, item
 }
 
 // MapContentValuesToTypeNames takes the values map and the typefield map from contentful and merges the two.
-func (tc *TranslationContext) MapContentValuesToTypeNames(Map map[string]interface{}, fields []mapper.TypeField) map[string]interface{} {
+func (tc *TranslationContext) MapContentValuesToTypeNames(Map map[string]interface{}, fields []mapper.TypeField, ids map[string]string) map[string]interface{} {
 	fieldMap := map[string]interface{}{}
 	for _, field := range fields {
-		value := tc.translateField(Map[field.ID], field)
+		value := tc.translateField(Map[field.ID], field, ids)
 		if value != nil {
 			fieldMap[field.ID] = value
 		}
@@ -118,7 +119,7 @@ func (tc *TranslationContext) TranslateToMarkdown(rawContent Content) (content s
 	}
 }
 
-func (tc *TranslationContext) translateArrayField(value interface{}) interface{} {
+func (tc *TranslationContext) translateArrayField(value interface{}, ids map[string]string) interface{} {
 	if value == nil {
 		return []interface{}{}
 	}
@@ -132,7 +133,7 @@ func (tc *TranslationContext) translateArrayField(value interface{}) interface{}
 		if isString {
 			array[i] = s
 		} else {
-			if s, ok := tc.translateLinkField(el).(string); ok {
+			if s, ok := tc.translateLinkField(el, ids).(string); ok {
 				array[i] = s
 			}
 		}
@@ -141,16 +142,16 @@ func (tc *TranslationContext) translateArrayField(value interface{}) interface{}
 	return array
 }
 
-func (tc *TranslationContext) translateLinkField(value interface{}) interface{} {
+func (tc *TranslationContext) translateLinkField(value interface{}, ids map[string]string) interface{} {
 	if value == nil {
 		return value
 	}
 	item := value.(map[string]interface{})
 	sys := item["sys"].(map[string]interface{})
-
+  contentType := strings.ToLower(ids[sys["id"].(string)])
 	linkType := sys["linkType"]
 	if linkType == "Entry" {
-		return sys["id"].(string) + ".md"
+		return contentType + "/" + sys["id"].(string) + ".md"
 	} else {
 		assets := tc.Result.Includes["Asset"]
 		for _, asset := range assets {
@@ -178,12 +179,12 @@ func (tc *TranslationContext) translateDateField(value interface{}) interface{} 
 	return value
 }
 
-func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField) interface{} {
+func (tc *TranslationContext) translateField(value interface{}, field mapper.TypeField, ids map[string]string) interface{} {
 	if field.Type == "Array" {
-		return tc.translateArrayField(value)
+		return tc.translateArrayField(value, ids)
 
 	} else if field.Type == "Link" {
-		return tc.translateLinkField(value)
+		return tc.translateLinkField(value, ids)
 
 	} else if field.Type == "Date" {
 		return tc.translateDateField(value)
