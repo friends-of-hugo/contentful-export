@@ -20,11 +20,11 @@ go install
 ## Usage
 
 ``` sh
-contentful-hugo [Flags]
+contentful-export [Flags]
 
 Flags:
  -space-id=value      "Id of the contentful space from which to extract content. If not present will default to an environment variable named `$CONTENTFUL_API_SPACE`"
- -api-token=value     "API Key used to authenticate with contentful for content delivery. If not present will default to an environment variable named `$CONTENTFUL_API_KEY`. The preview API key should be provided if -p is used."
+ -api-key=value       "API Key used to authenticate with contentful for content delivery. If not present will default to an environment variable named `$CONTENTFUL_API_KEY`. The preview API key should be provided if -p is used."
  -config-file=value   "Path to the config TOML file to load. Defauls to `./extract-config.tml`"
  -p                   "If present, the contentful preview API will be used so that draft content will be included as part of the export."
  ```
@@ -37,13 +37,13 @@ _As environment vars..._
 export CONTENTFUL_API_KEY=YOUR-CONTENT-DELIVERY-API-ACCESS-TOKEN-HERE
 export CONTENTFUL_API_SPACE=YOUR-SPACE-ID-HERE
 
-contentful-hugo
+contentful-export
 ```
 
 _As flags..._
 
 ``` sh
-contentful-hugo -space-id=[YOUR-ID-HERE] -api-token=[YOUR-ACCESS-KEY-HERE] -config-file="./export-conf.toml"
+contentful-export -space-id=[YOUR-ID-HERE] -api-key=[YOUR-ACCESS-KEY-HERE] -config-file="./export-conf.toml"
 
 ```
 
@@ -72,7 +72,7 @@ encoding = "yaml"
 
 ### Configure Hugo Page Bundles
 
-`contentful-hugo` will export each content type in contentful into its own content directory `./content/` and, since hugo treats each rootlevel content directory as a [Section][1], you will end up having a hugo section for each contentful content type. Hugo allows you to provide [Section][1] level configuration for its [Page Bundles](https://gohugo.io/content-management/page-bundles) by dropping a file named `_index.md` in the section's content directory. It is likely that you'll want to provide such configuration for some sections. 
+`contentful-export` will export each content type in contentful into its own content directory `./content/` and, since hugo treats each rootlevel content directory as a [Section][1], you will end up having a hugo section for each contentful content type. Hugo allows you to provide [Section][1] level configuration for its [Page Bundles](https://gohugo.io/content-management/page-bundles) by dropping a file named `_index.md` in the section's content directory. It is likely that you'll want to provide such configuration for some sections. 
 
 For example, let's say you need to make a section [headless](https://gohugo.io/content-management/page-bundles/#headless-bundle). Pretend that you have a contentful content type with the id `question` and you have some questions in your contentful content model which you intend to reference in a seperate `FAQ` page. After a `contentful-hugo` export, you might the following directory structure:
 
